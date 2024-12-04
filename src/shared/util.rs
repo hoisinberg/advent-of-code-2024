@@ -2,8 +2,8 @@ use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 
-pub fn greet(day: u32) {
-    println!("Advent of Code 2024, Day {day}, Part 1");
+pub fn greet(day: u32, part: u32) {
+    println!("Advent of Code 2024, Day {day}, Part {part}");
 }
 
 pub fn get_arg(index: usize) -> io::Result<String> {
