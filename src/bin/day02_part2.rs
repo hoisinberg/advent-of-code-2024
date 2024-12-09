@@ -8,10 +8,6 @@ fn count_safe_lines(lines: io::Lines<io::BufReader<File>>) -> io::Result<u32> {
   let mut result = 0;
   for line in lines {
     let levels = line.and_then(|line| split_and_parse::<i32>(&line))?;
-    if levels.len() <= 1 {
-      result = result + 1;
-      continue;
-    }
     for i in 0..levels.len() {
       let before = &levels[0..i];
       let after = &levels[(i+1)..levels.len()];
