@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::{self};
 use std::vec::Vec;
 
-use crate::shared::util::parse_int_line;
+use crate::shared::util::split_and_parse;
 
 pub fn parse_lists(lines: io::Lines<io::BufReader<File>>) -> io::Result<(Vec<u32>, Vec<u32>)> {
   let mut first_list: Vec<u32> = Vec::new();
@@ -18,7 +18,7 @@ pub fn parse_lists(lines: io::Lines<io::BufReader<File>>) -> io::Result<(Vec<u32
 }
 
 fn parse_line(line: &str) -> io::Result<(u32, u32)> {
-  let parsed = parse_int_line(line)?;
+  let parsed = split_and_parse::<u32>(line)?;
   if parsed.len() != 2 {
     return Err(io::Error::new(
       io::ErrorKind::InvalidInput,
