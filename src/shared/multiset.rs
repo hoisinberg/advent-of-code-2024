@@ -167,7 +167,7 @@ mod tests {
   use super::*;
 
   #[test]
-  fn btreemultiset_empty_count_0() {
+  fn btreemultiset_empty_count_zero() {
     let multiset = BTreeMultiSet::<String>::new();
 
     assert_eq!(multiset.get_count(&String::from("test")), 0);
@@ -238,6 +238,20 @@ mod tests {
   }
 
   #[test]
+  fn btreemultiset_clear_resets_counts_to_zero() {
+    let mut multiset = BTreeMultiSet::<String>::new();
+    let key1 = String::from("def");
+    let key2 = String::from("abc");
+
+    multiset.insert(&key1, 7);
+    multiset.insert(&key2, 12);
+    multiset.clear();
+
+    assert_eq!(multiset.get_count(&key1), 0);
+    assert_eq!(multiset.get_count(&key2), 0);
+  }
+
+  #[test]
   fn btreemultiset_iter_returns_occurrence_count_pairs_asc_order() {
     let mut multiset = BTreeMultiSet::<String>::new();
     let key1 = String::from("def");
@@ -251,7 +265,7 @@ mod tests {
   }
 
   #[test]
-  fn hashmultiset_empty_count_0() {
+  fn hashmultiset_empty_count_zero() {
     let multiset = HashMultiSet::<String>::new();
 
     assert_eq!(multiset.get_count(&String::from("test")), 0);
@@ -319,6 +333,20 @@ mod tests {
 
     assert_eq!(multiset.get_count(&key1), 25);
     assert_eq!(multiset.get_count(&key2), 16);
+  }
+
+  #[test]
+  fn hashmultiset_clear_resets_counts_to_zero() {
+    let mut multiset = HashMultiSet::<String>::new();
+    let key1 = String::from("def");
+    let key2 = String::from("abc");
+
+    multiset.insert(&key1, 7);
+    multiset.insert(&key2, 12);
+    multiset.clear();
+
+    assert_eq!(multiset.get_count(&key1), 0);
+    assert_eq!(multiset.get_count(&key2), 0);
   }
 
   #[test]
