@@ -29,7 +29,7 @@ impl<T: Ord> BTreeMultiSet<T> {
   where
     T: Clone,
   {
-    if let Some(count) = self.occurrence_count.get_mut(&element) {
+    if let Some(count) = self.occurrence_count.get_mut(element) {
       *count += n;
       *count
     } else {
@@ -118,7 +118,7 @@ impl<T: Hash + Eq> HashMultiSet<T> {
   where
     T: Clone,
   {
-    if let Some(count) = self.occurrence_count.get_mut(&element) {
+    if let Some(count) = self.occurrence_count.get_mut(element) {
       *count += n;
       *count
     } else {
