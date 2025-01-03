@@ -23,7 +23,8 @@ impl<T: Ord> BTreeMultiSet<T> {
   }
 
   /// Increments the occurence count of the element by the given amount and returns the updated
-  /// count.
+  /// count. If this is the first time the element has been inserted and the intended count is
+  /// positive, it will be cloned for internal tracking.
   pub fn insert(&mut self, element: &T, n: usize) -> usize
   where
     T: Clone,
@@ -32,7 +33,9 @@ impl<T: Ord> BTreeMultiSet<T> {
       *count += n;
       *count
     } else {
-      self.occurrence_count.insert(element.clone(), n);
+      if n != 0 {
+        self.occurrence_count.insert(element.clone(), n);
+      }
       n
     }
   }
@@ -61,6 +64,11 @@ impl<T: Ord> BTreeMultiSet<T> {
   /// Resets the occurrence count of all elements to 0.
   pub fn clear(&mut self) {
     self.occurrence_count.clear()
+  }
+
+  // Returns the number of elements with positive occurrence counts.
+  pub fn len(&self) -> usize {
+    self.occurrence_count.len()
   }
 
   // An iterator visiting all (element, occurrence_count) pairs in ascending key order.
@@ -104,7 +112,8 @@ impl<T: Hash + Eq> HashMultiSet<T> {
   }
 
   /// Increments the occurence count of the element by the given amount and returns the updated
-  /// count.
+  /// count. If this is the first time the element has been inserted and the intended count is
+  /// positive, it will be cloned for internal tracking.
   pub fn insert(&mut self, element: &T, n: usize) -> usize
   where
     T: Clone,
@@ -113,7 +122,9 @@ impl<T: Hash + Eq> HashMultiSet<T> {
       *count += n;
       *count
     } else {
-      self.occurrence_count.insert(element.clone(), n);
+      if n != 0 {
+        self.occurrence_count.insert(element.clone(), n);
+      }
       n
     }
   }
@@ -144,6 +155,11 @@ impl<T: Hash + Eq> HashMultiSet<T> {
     self.occurrence_count.clear()
   }
 
+  // Returns the number of elements with positive occurrence counts.
+  pub fn len(&self) -> usize {
+    self.occurrence_count.len()
+  }
+
   // An iterator visiting all (element, occurrence_count) pairs.
   pub fn iter<'a>(&'a self) -> impl Iterator<Item = (&T, usize)> + 'a {
     HashMultiSetIter {
@@ -169,6 +185,13 @@ mod tests {
   use super::*;
 
   #[test]
+  fn btreemultiset_empty_len_zero() {
+    let multiset = BTreeMultiSet::<String>::new();
+
+    assert_eq!(multiset.len(), 0);
+  }
+
+  #[test]
   fn btreemultiset_empty_count_zero() {
     let multiset = BTreeMultiSet::<String>::new();
 
@@ -190,6 +213,14 @@ mod tests {
   }
 
   #[test]
+  fn btreemultiset_insert_zero_noop() {
+    let mut multiset = BTreeMultiSet::<String>::new();
+
+    multiset.insert(&String::from("test"), 0);
+    assert_eq!(multiset.len(), 0);
+  }
+
+  #[test]
   fn btreemultiset_insert_adds_count() {
     let mut multiset = BTreeMultiSet::<String>::new();
     let key = String::from("test");
@@ -202,6 +233,27 @@ mod tests {
   }
 
   #[test]
+  fn btreemultiset_len_counts_nonzero_elements() {
+    let mut multiset = BTreeMultiSet::<String>::new();
+
+    multiset.insert(&String::from("test1"), 1);
+    multiset.insert(&String::from("test2"), 2);
+
+    assert_eq!(multiset.len(), 2);
+  }
+
+  #[test]
+  fn btreemultiset_len_unchanged_after_element_update() {
+    let mut multiset = BTreeMultiSet::<String>::new();
+    let key = String::from("test");
+
+    multiset.insert(&key, 1);
+    multiset.insert(&key, 2);
+
+    assert_eq!(multiset.len(), 1);
+  }
+
+  #[test]
   fn btreemultiset_insert_remove_success() {
     let mut multiset = BTreeMultiSet::<String>::new();
     let key = String::from("test");
@@ -210,6 +262,20 @@ mod tests {
 
     assert_eq!(multiset.remove(&key, 9), Some(1));
     assert_eq!(multiset.get_count(&key), 1);
+  }
+
+  #[test]
+  fn btreemultiset_len_decreases_after_full_removal() {
+    let mut multiset = BTreeMultiSet::<String>::new();
+    let key = String::from("test");
+
+    multiset.insert(&key, 10);
+
+    multiset.remove(&key, 9);
+    assert_eq!(multiset.len(), 1);
+
+    multiset.remove(&key, 1);
+    assert_eq!(multiset.len(), 0);
   }
 
   #[test]
@@ -240,7 +306,7 @@ mod tests {
   }
 
   #[test]
-  fn btreemultiset_clear_resets_counts_to_zero() {
+  fn btreemultiset_clear() {
     let mut multiset = BTreeMultiSet::<String>::new();
     let key1 = String::from("def");
     let key2 = String::from("abc");
@@ -251,6 +317,7 @@ mod tests {
 
     assert_eq!(multiset.get_count(&key1), 0);
     assert_eq!(multiset.get_count(&key2), 0);
+    assert_eq!(multiset.len(), 0);
   }
 
   #[test]
@@ -264,6 +331,13 @@ mod tests {
 
     let counts: Vec<(&String, usize)> = multiset.iter().collect();
     assert_eq!(counts, Vec::from([(&key2, 12), (&key1, 7)]));
+  }
+
+  #[test]
+  fn hashmultiset_empty_len_zero() {
+    let multiset = HashMultiSet::<String>::new();
+
+    assert_eq!(multiset.len(), 0);
   }
 
   #[test]
@@ -288,6 +362,14 @@ mod tests {
   }
 
   #[test]
+  fn hashmultiset_insert_zero_noop() {
+    let mut multiset = HashMultiSet::<String>::new();
+
+    multiset.insert(&String::from("test"), 0);
+    assert_eq!(multiset.len(), 0);
+  }
+
+  #[test]
   fn hashmultiset_insert_adds_count() {
     let mut multiset = HashMultiSet::<String>::new();
     let key = String::from("test");
@@ -300,6 +382,27 @@ mod tests {
   }
 
   #[test]
+  fn hashmultiset_len_counts_nonzero_elements() {
+    let mut multiset = HashMultiSet::<String>::new();
+
+    multiset.insert(&String::from("test1"), 1);
+    multiset.insert(&String::from("test2"), 2);
+
+    assert_eq!(multiset.len(), 2);
+  }
+
+  #[test]
+  fn hashmultiset_len_unchanged_after_element_update() {
+    let mut multiset = HashMultiSet::<String>::new();
+    let key = String::from("test");
+
+    multiset.insert(&key, 1);
+    multiset.insert(&key, 2);
+
+    assert_eq!(multiset.len(), 1);
+  }
+
+  #[test]
   fn hashmultiset_insert_remove_success() {
     let mut multiset = HashMultiSet::<String>::new();
     let key = String::from("test");
@@ -308,6 +411,20 @@ mod tests {
 
     assert_eq!(multiset.remove(&key, 9), Some(1));
     assert_eq!(multiset.get_count(&key), 1);
+  }
+
+  #[test]
+  fn hashmultiset_len_decreases_after_full_removal() {
+    let mut multiset = HashMultiSet::<String>::new();
+    let key = String::from("test");
+
+    multiset.insert(&key, 10);
+
+    multiset.remove(&key, 9);
+    assert_eq!(multiset.len(), 1);
+
+    multiset.remove(&key, 1);
+    assert_eq!(multiset.len(), 0);
   }
 
   #[test]
@@ -338,7 +455,7 @@ mod tests {
   }
 
   #[test]
-  fn hashmultiset_clear_resets_counts_to_zero() {
+  fn hashmultiset_clear() {
     let mut multiset = HashMultiSet::<String>::new();
     let key1 = String::from("def");
     let key2 = String::from("abc");
@@ -349,6 +466,7 @@ mod tests {
 
     assert_eq!(multiset.get_count(&key1), 0);
     assert_eq!(multiset.get_count(&key2), 0);
+    assert_eq!(multiset.len(), 0);
   }
 
   #[test]
