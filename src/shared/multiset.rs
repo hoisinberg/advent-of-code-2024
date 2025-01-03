@@ -79,7 +79,7 @@ impl<T: Ord> BTreeMultiSet<T> {
   }
 }
 
-struct BTreeMultiSetIter<'a, T: 'a> {
+struct BTreeMultiSetIter<'a, T> {
   delegate: std::collections::btree_map::Iter<'a, T, usize>,
 }
 
@@ -168,7 +168,7 @@ impl<T: Hash + Eq> HashMultiSet<T> {
   }
 }
 
-struct HashMultiSetIter<'a, T: 'a> {
+struct HashMultiSetIter<'a, T> {
   delegate: std::collections::hash_map::Iter<'a, T, usize>,
 }
 
