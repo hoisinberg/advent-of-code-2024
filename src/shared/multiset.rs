@@ -64,14 +64,14 @@ impl<T: Ord> BTreeMultiSet<T> {
   }
 
   // An iterator visiting all (element, occurrence_count) pairs in ascending key order.
-  pub fn iter<'a>(&'a self) -> BTreeMultiSetIter<'a, T> {
+  pub fn iter<'a>(&'a self) -> impl Iterator<Item = (&T, usize)> + 'a {
     BTreeMultiSetIter {
       delegate: self.occurrence_count.iter(),
     }
   }
 }
 
-pub struct BTreeMultiSetIter<'a, T: 'a> {
+struct BTreeMultiSetIter<'a, T: 'a> {
   delegate: std::collections::btree_map::Iter<'a, T, usize>,
 }
 
@@ -145,14 +145,14 @@ impl<T: Hash + Eq> HashMultiSet<T> {
   }
 
   // An iterator visiting all (element, occurrence_count) pairs.
-  pub fn iter<'a>(&'a self) -> HashMultiSetIter<'a, T> {
+  pub fn iter<'a>(&'a self) -> impl Iterator<Item = (&T, usize)> + 'a {
     HashMultiSetIter {
       delegate: self.occurrence_count.iter(),
     }
   }
 }
 
-pub struct HashMultiSetIter<'a, T: 'a> {
+struct HashMultiSetIter<'a, T: 'a> {
   delegate: std::collections::hash_map::Iter<'a, T, usize>,
 }
 
