@@ -158,7 +158,7 @@ impl<'a, T> Iterator for HashMultiSetIter<'a, T> {
   type Item = (&'a T, usize);
 
   fn next(&mut self) -> Option<Self::Item> {
-    self.delegate.next().map(|entry| (entry.0, *entry.1))
+    self.delegate.next().map(|(element, count)| (element, *count))
   }
 }
 
