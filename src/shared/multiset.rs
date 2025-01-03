@@ -49,10 +49,11 @@ impl<T: Ord> BTreeMultiSet<T> {
       if *count >= n {
         *count -= n;
         updated_count = Some(*count);
+
+        if *count == 0 {
+          self.occurrence_count.remove(element);
+        }
       }
-    }
-    if updated_count.map(|count| count == 0).unwrap_or(false) {
-      self.occurrence_count.remove(element);
     }
     updated_count
   }
@@ -129,10 +130,11 @@ impl<T: Hash + Eq> HashMultiSet<T> {
       if *count >= n {
         *count -= n;
         updated_count = Some(*count);
+
+        if *count == 0 {
+          self.occurrence_count.remove(element);
+        }
       }
-    }
-    if updated_count.map(|count| count == 0).unwrap_or(false) {
-      self.occurrence_count.remove(element);
     }
     updated_count
   }
